@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Task‑3: Responsive Page with Carousel & API</title>
+  <style>
+    :root{
+      --bg: #0f172a;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --brand: #22d3ee;
+      --accent: #a78bfa;
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    body{
+      margin:0; font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+    .wrapper{ max-width:1100px; margin:0 auto; padding:20px; display:grid; gap:1.2rem; }
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      background:rgba(255,255,255,0.05);
+      padding:14px 18px; border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .brand{ font-weight:700; color:var(--brand); }
+    nav{ display:flex; gap:1rem; }
+    nav a{ color:var(--text); text-decoration:none; }
+    nav a:hover{ color:var(--brand); }
+
+    main{ display:grid; gap:1.2rem; grid-template-columns:1fr; }
+    @media(min-width:720px){ main{ grid-template-columns:1.2fr .8fr; } }
+
+    .card{ background:var(--panel); padding:20px; border-radius:var(--radius); box-shadow:var(--shadow); }
+    h2{ margin-top:0; }
+
+    /* Carousel */
+    .carousel{ position:relative; overflow:hidden; border-radius:var(--radius); }
+    .slides{ display:flex; transition:transform .5s ease; }
+    .slides img{ width:100%; border-radius:var(--radius); }
+    .carousel-btn{
+      position:absolute; top:50%; transform:translateY(-50%);
+      background:rgba(0,0,0,0.5); border:none; color:white; font-size:24px;
+      padding:8px 12px; cursor:pointer; border-radius:50%;
+    }
+    .prev{ left:10px; }
+    .next{ right:10px; }
+
+    /* Joke box */
+    .joke-box{ min-height:58px; }
+    .btn{ background:linear-gradient(135deg, var(--brand), var(--accent)); border:none; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; }
+    .btn:hover{ opacity:0.9; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <div class="brand">ApexPlanet — Task‑3</div>
+      <nav>
+        <a href="#carousel">Carousel</a>
+        <a href="#api">API Demo</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Left column: Image Carousel -->
+      <section id="carousel" class="card">
+        <h2>Image Carousel</h2>
+        <div class="carousel" id="carouselBox">
+          <div class="slides" id="slides">
+            <img src="https://picsum.photos/id/1015/800/400" alt="Slide 1">
+            <img src="https://picsum.photos/id/1025/800/400" alt="Slide 2">
+            <img src="https://picsum.photos/id/1035/800/400" alt="Slide 3">
+          </div>
+          <button class="carousel-btn prev" id="prevBtn">❮</button>
+          <button class="carousel-btn next" id="nextBtn">❯</button>
+        </div>
+      </section>
+
+      <!-- Right column: API fetch demo -->
+      <section id="api" class="card">
+        <h2>Fetch Data from a Public API</h2>
+        <p>Click the button to fetch a random programming joke.</p>
+        <div class="joke-box" id="jokeBox">No joke yet — click the button!</div>
+        <div style="margin-top:10px;">
+          <button class="btn" id="jokeBtn">Get a Joke</button>
+          <button class="btn" id="clearJokeBtn">Clear</button>
+        </div>
+      </section>
+    </main>
+
+    <footer style="text-align:center; padding:8px; opacity:0.7;">
+      Built for Task‑3 — Carousel & API · © <span id="year"></span>
+    </footer>
+  </div>
+
+  <script>
+    // Carousel logic
+    const slides = document.getElementById('slides');
+    const totalSlides = slides.children.length;
+    let index = 0;
+
+    function showSlide(i){
+      index = (i + totalSlides) % totalSlides;
+      slides.style.transform = `translateX(-${index * 100}%)`;
+    }
+
+    document.getElementById('prevBtn').addEventListener('click',()=>showSlide(index-1));
+    document.getElementById('nextBtn').addEventListener('click',()=>showSlide(index+1));
+
+    // Auto slide every 4s
+    setInterval(()=>showSlide(index+1),4000);
+
+    // Joke API
+    const jokeBox=document.getElementById('jokeBox');
+    document.getElementById('jokeBtn').addEventListener('click',async()=>{
+      jokeBox.textContent='Loading...';
+      try{
+        const res=await fetch('https://official-joke-api.appspot.com/jokes/programming/random');
+        const data=await res.json();
+        const j=Array.isArray(data)?data[0]:data;
+        jokeBox.innerHTML=`<strong>${j.setup}</strong><br>${j.punchline}`;
+      }catch(err){ jokeBox.textContent='Failed to fetch joke.'; }
+    });
+    document.getElementById('clearJokeBtn').addEventListener('click',()=>jokeBox.textContent='No joke yet — click the button!');
+
+    document.getElementById('year').textContent=new Date().getFullYear();
+  </script>
+</body>
+</html>
